@@ -1,16 +1,17 @@
 """Benchmark skeleton for single-agent vs multi-agent."""
 
+from collections.abc import Callable
 from time import perf_counter
-from typing import Callable
 
 from multi_agent_research_lab.core.schemas import BenchmarkMetrics
 from multi_agent_research_lab.core.state import ResearchState
 
-
 Runner = Callable[[str], ResearchState]
 
 
-def run_benchmark(run_name: str, query: str, runner: Runner) -> tuple[ResearchState, BenchmarkMetrics]:
+def run_benchmark(
+    run_name: str, query: str, runner: Runner
+) -> tuple[ResearchState, BenchmarkMetrics]:
     """Measure latency, estimate costs, evaluate quality, and generate metrics."""
     from multi_agent_research_lab.services.llm_client import LLMClient
 
@@ -35,10 +36,7 @@ def run_benchmark(run_name: str, query: str, runner: Runner) -> tuple[ResearchSt
         "- Structure: Is it organized and clear?\n"
         "Output ONLY a decimal number between 0.0 and 10.0, nothing else."
     )
-    user_prompt = (
-        f"Query: {query}\n\n"
-        f"Report Draft:\n{state.final_answer or 'No answer'}"
-    )
+    user_prompt = f"Query: {query}\n\nReport Draft:\n{state.final_answer or 'No answer'}"
 
     try:
         judge_res = llm_client.complete(system_prompt, user_prompt)
@@ -57,7 +55,6 @@ def run_benchmark(run_name: str, query: str, runner: Runner) -> tuple[ResearchSt
         latency_seconds=latency,
         estimated_cost_usd=total_cost if total_cost > 0 else None,
         quality_score=quality_score,
-        notes=notes
+        notes=notes,
     )
     return state, metrics
-

@@ -4,13 +4,11 @@ This file intentionally avoids binding to one provider. Students can plug in Lan
 Langfuse, OpenTelemetry, or simple JSON traces.
 """
 
+import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
 from time import perf_counter
 from typing import Any
-
-
-import logging
 
 logger = logging.getLogger("multi_agent_research_lab.observability")
 
@@ -26,4 +24,3 @@ def trace_span(name: str, attributes: dict[str, Any] | None = None) -> Iterator[
     finally:
         span["duration_seconds"] = perf_counter() - started
         logger.info(f"[Span End] {name} | Duration: {span['duration_seconds']:.4f}s")
-

@@ -6,7 +6,6 @@ from multi_agent_research_lab.core.state import ResearchState
 from multi_agent_research_lab.services.llm_client import LLMClient
 
 
-
 class CriticAgent(BaseAgent):
     """Optional fact-checking and safety-review agent."""
 
@@ -49,9 +48,8 @@ class CriticAgent(BaseAgent):
                     "input_tokens": res.input_tokens,
                     "output_tokens": res.output_tokens,
                     "cost_usd": res.cost_usd,
-                }
+                },
             )
         )
         state.add_trace_event("critic_completed", {})
         return state
-

@@ -6,7 +6,6 @@ from multi_agent_research_lab.core.state import ResearchState
 from multi_agent_research_lab.services.llm_client import LLMClient
 
 
-
 class AnalystAgent(BaseAgent):
     """Turns research notes into structured insights."""
 
@@ -28,10 +27,7 @@ class AnalystAgent(BaseAgent):
             "3. Assess the strength and credibility of the evidence (point out if any sources are weak, outdated, or biased).\n"
             "4. Structure your insights clearly using bullet points and headers."
         )
-        user_prompt = (
-            f"User Query: {query}\n\n"
-            f"Research Notes:\n{research_notes}"
-        )
+        user_prompt = f"User Query: {query}\n\nResearch Notes:\n{research_notes}"
 
         res = self.llm_client.complete(system_prompt, user_prompt)
         state.analysis_notes = res.content
@@ -44,9 +40,8 @@ class AnalystAgent(BaseAgent):
                     "input_tokens": res.input_tokens,
                     "output_tokens": res.output_tokens,
                     "cost_usd": res.cost_usd,
-                }
+                },
             )
         )
         state.add_trace_event("analysis_completed", {})
         return state
-

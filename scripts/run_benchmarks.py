@@ -7,13 +7,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "s
 # Ensure UTF-8 mode on Windows
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
-from multi_agent_research_lab.core.schemas import ResearchQuery, AgentName, AgentResult
+from multi_agent_research_lab.core.schemas import AgentName, AgentResult, ResearchQuery
 from multi_agent_research_lab.core.state import ResearchState
-from multi_agent_research_lab.services.llm_client import LLMClient
-from multi_agent_research_lab.services.search_client import SearchClient
-from multi_agent_research_lab.graph.workflow import MultiAgentWorkflow
 from multi_agent_research_lab.evaluation.benchmark import run_benchmark
 from multi_agent_research_lab.evaluation.report import render_markdown_report
+from multi_agent_research_lab.graph.workflow import MultiAgentWorkflow
+from multi_agent_research_lab.services.llm_client import LLMClient
+from multi_agent_research_lab.services.search_client import SearchClient
 
 
 def baseline_runner(query: str) -> ResearchState:
@@ -25,8 +25,7 @@ def baseline_runner(query: str) -> ResearchState:
     state.sources = sources
 
     sources_text = "\n\n".join(
-        f"Source: {s.title}\nURL: {s.url}\nContent: {s.snippet}"
-        for s in sources
+        f"Source: {s.title}\nURL: {s.url}\nContent: {s.snippet}" for s in sources
     )
 
     llm_client = LLMClient()
@@ -50,7 +49,7 @@ def baseline_runner(query: str) -> ResearchState:
                 "input_tokens": res.input_tokens,
                 "output_tokens": res.output_tokens,
                 "cost_usd": res.cost_usd,
-            }
+            },
         )
     )
     return state
@@ -67,23 +66,27 @@ def main() -> None:
 
     print("Running Single-Agent Baseline...")
     state_bl, metrics_bl = run_benchmark("Single-Agent Baseline", query, baseline_runner)
-    print(f"Baseline finished in {metrics_bl.latency_seconds:.2f}s (Quality Score: {metrics_bl.quality_score})")
+    print(
+        f"Baseline finished in {metrics_bl.latency_seconds:.2f}s (Quality Score: {metrics_bl.quality_score})"
+    )
 
     print("\nRunning Multi-Agent Workflow...")
     state_ma, metrics_ma = run_benchmark("Multi-Agent Workflow", query, multi_agent_runner)
-    print(f"Multi-agent finished in {metrics_ma.latency_seconds:.2f}s (Quality Score: {metrics_ma.quality_score})")
+    print(
+        f"Multi-agent finished in {metrics_ma.latency_seconds:.2f}s (Quality Score: {metrics_ma.quality_score})"
+    )
 
     # Generate Markdown Report
     report_content = render_markdown_report([metrics_bl, metrics_ma])
-    
+
     # Save Report
     reports_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "reports"))
     os.makedirs(reports_dir, exist_ok=True)
     report_path = os.path.join(reports_dir, "benchmark_report.md")
-    
+
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(report_content)
-        
+
     print("\n" + "=" * 50)
     print(report_content)
     print("=" * 50)

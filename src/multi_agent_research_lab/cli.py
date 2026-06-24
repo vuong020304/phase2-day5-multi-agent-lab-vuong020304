@@ -29,9 +29,9 @@ def baseline(
     """Run a single-agent baseline (search + synthesis)."""
 
     _init()
+    from multi_agent_research_lab.core.schemas import AgentName, AgentResult
     from multi_agent_research_lab.services.llm_client import LLMClient
     from multi_agent_research_lab.services.search_client import SearchClient
-    from multi_agent_research_lab.core.schemas import AgentName, AgentResult
 
     request = ResearchQuery(query=query)
     state = ResearchState(request=request)
@@ -41,8 +41,7 @@ def baseline(
     state.sources = sources
 
     sources_text = "\n\n".join(
-        f"Source: {s.title}\nURL: {s.url}\nContent: {s.snippet}"
-        for s in sources
+        f"Source: {s.title}\nURL: {s.url}\nContent: {s.snippet}" for s in sources
     )
 
     llm_client = LLMClient()
@@ -67,13 +66,12 @@ def baseline(
                 "input_tokens": res.input_tokens,
                 "output_tokens": res.output_tokens,
                 "cost_usd": res.cost_usd,
-            }
+            },
         )
     )
 
     console.print(Panel.fit(state.final_answer, title="Single-Agent Baseline Answer"))
     console.print(state.model_dump_json(indent=2))
-
 
 
 @app.command("multi-agent")

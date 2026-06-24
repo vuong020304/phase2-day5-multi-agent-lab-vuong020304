@@ -6,7 +6,6 @@ from multi_agent_research_lab.core.state import ResearchState
 from multi_agent_research_lab.services.llm_client import LLMClient
 
 
-
 class WriterAgent(BaseAgent):
     """Produces final answer from research and analysis notes."""
 
@@ -54,9 +53,8 @@ class WriterAgent(BaseAgent):
                     "input_tokens": res.input_tokens,
                     "output_tokens": res.output_tokens,
                     "cost_usd": res.cost_usd,
-                }
+                },
             )
         )
         state.add_trace_event("writing_completed", {})
         return state
-

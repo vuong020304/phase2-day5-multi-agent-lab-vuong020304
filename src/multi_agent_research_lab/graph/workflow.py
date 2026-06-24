@@ -1,16 +1,15 @@
 """LangGraph workflow skeleton."""
 
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import END, START, StateGraph
 
-from multi_agent_research_lab.core.state import ResearchState
 from multi_agent_research_lab.agents import (
-    SupervisorAgent,
-    ResearcherAgent,
     AnalystAgent,
+    CriticAgent,
+    ResearcherAgent,
+    SupervisorAgent,
     WriterAgent,
-    CriticAgent
 )
-
+from multi_agent_research_lab.core.state import ResearchState
 
 
 class MultiAgentWorkflow:
@@ -57,8 +56,8 @@ class MultiAgentWorkflow:
                 "analyst": "analyst",
                 "writer": "writer",
                 "critic": "critic",
-                END: END
-            }
+                END: END,
+            },
         )
 
         return workflow.compile()
@@ -73,4 +72,3 @@ class MultiAgentWorkflow:
         elif isinstance(result, dict):
             return ResearchState.model_validate(result)
         return state
-

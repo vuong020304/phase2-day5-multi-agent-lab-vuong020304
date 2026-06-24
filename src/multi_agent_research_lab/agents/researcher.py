@@ -7,7 +7,6 @@ from multi_agent_research_lab.services.llm_client import LLMClient
 from multi_agent_research_lab.services.search_client import SearchClient
 
 
-
 class ResearcherAgent(BaseAgent):
     """Collects sources and creates concise research notes."""
 
@@ -58,8 +57,7 @@ class ResearcherAgent(BaseAgent):
 
         # 4. Synthesize research notes
         sources_text = "\n\n".join(
-            f"Source: {s.title}\nURL: {s.url}\nContent: {s.snippet}"
-            for s in state.sources
+            f"Source: {s.title}\nURL: {s.url}\nContent: {s.snippet}" for s in state.sources
         )
 
         system_prompt_notes = (
@@ -67,10 +65,7 @@ class ResearcherAgent(BaseAgent):
             "Organize them logically, highlight key statistics/definitions/findings, and preserve source citations. "
             "Keep the notes factual, objective, and dense with information."
         )
-        user_prompt_notes = (
-            f"User Request: {query}\n\n"
-            f"Search Results:\n{sources_text}"
-        )
+        user_prompt_notes = f"User Request: {query}\n\nSearch Results:\n{sources_text}"
 
         notes_res = self.llm_client.complete(system_prompt_notes, user_prompt_notes)
         state.research_notes = notes_res.content
@@ -90,9 +85,10 @@ class ResearcherAgent(BaseAgent):
                     "input_tokens": input_tokens,
                     "output_tokens": output_tokens,
                     "cost_usd": cost_usd,
-                }
+                },
             )
         )
-        state.add_trace_event("research_completed", {"query": search_query, "sources_count": len(state.sources)})
+        state.add_trace_event(
+            "research_completed", {"query": search_query, "sources_count": len(state.sources)}
+        )
         return state
-
