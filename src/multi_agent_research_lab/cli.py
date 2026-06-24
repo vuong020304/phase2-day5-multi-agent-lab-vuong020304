@@ -26,16 +26,54 @@ def _init() -> None:
 def baseline(
     query: Annotated[str, typer.Option("--query", "-q", help="Research query")],
 ) -> None:
-    """Run a minimal single-agent baseline placeholder."""
+    """Run a single-agent baseline (search + synthesis)."""
 
     _init()
+    from multi_agent_research_lab.services.llm_client import LLMClient
+    from multi_agent_research_lab.services.search_client import SearchClient
+    from multi_agent_research_lab.core.schemas import AgentName, AgentResult
+
     request = ResearchQuery(query=query)
     state = ResearchState(request=request)
-    state.final_answer = (
-        "Baseline skeleton response. TODO(student): replace this with a real single-agent "
-        "implementation and record latency/cost/quality metrics."
+
+    search_client = SearchClient()
+    sources = search_client.search(query, max_results=request.max_sources)
+    state.sources = sources
+
+    sources_text = "\n\n".join(
+        f"Source: {s.title}\nURL: {s.url}\nContent: {s.snippet}"
+        for s in sources
     )
-    console.print(Panel.fit(state.final_answer, title="Single-Agent Baseline"))
+
+    llm_client = LLMClient()
+    system_prompt = (
+        f"You are a professional research assistant. Answer the user's query comprehensively.\n"
+        f"Target Audience: {request.audience}.\n"
+        f"Requirements:\n"
+        f"1. Use inline citations [1], [2] to reference the provided search results.\n"
+        f"2. Add a 'References' section at the end of your report.\n"
+        f"3. Organize your answer clearly with markdown."
+    )
+    user_prompt = f"User Request: {query}\n\nSearch Results:\n{sources_text}"
+
+    res = llm_client.complete(system_prompt, user_prompt)
+    state.final_answer = res.content
+
+    state.agent_results.append(
+        AgentResult(
+            agent=AgentName.SUPERVISOR,
+            content=res.content,
+            metadata={
+                "input_tokens": res.input_tokens,
+                "output_tokens": res.output_tokens,
+                "cost_usd": res.cost_usd,
+            }
+        )
+    )
+
+    console.print(Panel.fit(state.final_answer, title="Single-Agent Baseline Answer"))
+    console.print(state.model_dump_json(indent=2))
+
 
 
 @app.command("multi-agent")
